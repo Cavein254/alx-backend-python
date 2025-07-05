@@ -28,11 +28,18 @@ def stream_users_in_batches(batch_size):
         if connection:
             connection.close()
 
+def batch_processing(batch_size):
+    """
+    Processes each batch by filtering users over the age of 25.
+    Yields a batch (list) of filtered users.
+    """
+    for batch in stream_users_in_batches(batch_size):
+        filtered_users = [user for user in batch if user['age'] > 25]
+        yield filtered_users
+
+
 if __name__ == "__main__":
     batch_size = 10  # Define the size of each batch
-    for batch in stream_users_in_batches(batch_size):
-        print(f"Processing batch of {len(batch)} users:")
-        for user in batch:
-            print(user)
-        print("Batch processed.\n")
-    print("All batches processed.")
+    for filtered_batch in batch_processing(batch_size):
+        print(f"Filtered Batch: {filtered_batch}")
+       

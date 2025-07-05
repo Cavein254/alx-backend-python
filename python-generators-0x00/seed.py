@@ -151,4 +151,4 @@ if __name__ == "__main__":
         print("Failed to connect to MySQL server.")
 else:
     print("This script is intended to be run as a standalone program.")
-    print("Please run it directly.")    
+    print("Please run it directly..")    
