@@ -7,14 +7,13 @@ from dotenv import load_dotenv
 from mysql.connector import errorcode
 
 load_dotenv()
-
+filename = 'data.csv'
 
 def get_data_from_url():
     """
     fetches data from the url in the .env file
     """
     url = os.getenv("DATA_URL")
-    filename = 'data.csv'
     if not os.path.exists(filename):
         response = requests.get(url)
         if response.status_code == 200:
@@ -25,6 +24,19 @@ def get_data_from_url():
             return None
     else:
         print(f"File {filename} already exists. Skipping download.")
+
+def read_csv_file():
+    """ 
+    reads the csv file and returns from disk
+    """
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            content = csv.DictReader(file)
+            return list(content)
+    except FileNotFoundError:
+        print(f"File '{filename}' not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 def connect_db():
     """
@@ -97,5 +109,24 @@ def insert_data(connection, data):
     """
       inserts data in the database if it does not exist
     """
+    cursor = connection.cursor()
+    insert_data = """INSERT INTO user_data (user_id, name, email, age)
+                    VALUES (%s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        name = VALUES(name),
+                        email = VALUES(email),
+                        age = VALUES(age)
+                    """
+    try:
+        for row in data:
+            user_id = str(uuid.uuid4())
+            cursor.execute(insert_data, (user_id, row['name'], row['email'], row['age']))
+        connection.commit()
+        print("Data inserted successfully.")
+    except mysql.connector.Error as err:
+        print(f"Failed to insert data: {err}")
+    cursor.close()
 
 connection = connect_to_prodev()
+data = read_csv_file()
+insert_data(connection,data)
