@@ -1,3 +1,4 @@
+import sys
 import mysql.connector
 from seed import connect_to_prodev
 
@@ -19,7 +20,7 @@ def stream_users_in_batches(batch_size):
                 batch = []  # Reset batch for next iteration
         
         if batch:  # Yield any remaining users that didn't fill a complete batch
-            yield batch
+            return batch
     except mysql.connector.Error as err:
         print(f"Error: {err}")
     finally:
@@ -35,11 +36,11 @@ def batch_processing(batch_size):
     """
     for batch in stream_users_in_batches(batch_size):
         filtered_users = [user for user in batch if user['age'] > 25]
-        return filtered_users
+        yield filtered_users
 
 
 if __name__ == "__main__":
     batch_size = 10  # Define the size of each batch
     for filtered_batch in batch_processing(batch_size):
         print(f"Filtered Batch: {filtered_batch}")
-       
+
