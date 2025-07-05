@@ -4,6 +4,8 @@ import os, sys
 import mysql.connector
 from dotenv import load_dotenv
 
+from seed import connect_to_prodev
+
 load_dotenv()
 
 def stream_users():
@@ -12,12 +14,7 @@ def stream_users():
     """
 
     try:
-        connection = mysql.connector.connect(
-            host=os.getenv("HOST"),
-            user=os.getenv("MYSQL_USER"),
-            password=os.getenv("MYSQL_PASSWORD"),
-            database=os.getenv("DATABASE")
-        )
+        connection = connect_to_prodev()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM user_data")
 

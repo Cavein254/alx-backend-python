@@ -5,7 +5,7 @@ import uuid
 import requests
 import csv
 from dotenv import load_dotenv
-from mysql.connector import errorcode
+
 
 load_dotenv()
 filename = 'user_data.csv'
