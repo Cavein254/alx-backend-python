@@ -1,3 +1,4 @@
+#!usr/bin/env python3
 import os
 import mysql.connector
 import uuid
@@ -7,7 +8,7 @@ from dotenv import load_dotenv
 from mysql.connector import errorcode
 
 load_dotenv()
-filename = 'data.csv'
+filename = 'user_data.csv'
 
 def get_data_from_url():
     """
@@ -17,15 +18,16 @@ def get_data_from_url():
     if not os.path.exists(filename):
         response = requests.get(url)
         if response.status_code == 200:
-            with open('data.csv', 'wb') as file:
+            with open('user_data.csv', 'wb') as file:
                 file.write(response.content)
         else:
             print(f"Failed to fetch data: {response.status_code}")
             return None
     else:
         print(f"File {filename} already exists. Skipping download.")
+   
 
-def read_csv_file():
+def read_csv_file(filename):
     """ 
     reads the csv file and returns from disk
     """
@@ -105,10 +107,14 @@ def create_table(connection):
         print(f"Failed to create table: {err}")
     cursor.close()
 
-def insert_data(connection, data):
+def insert_data(connection, filename):
     """
       inserts data in the database if it does not exist
     """
+    data = read_csv_file(filename)
+    if not data:
+        print("No data to insert.")
+        return
     cursor = connection.cursor()
     insert_data = """INSERT INTO user_data (user_id, name, email, age)
                     VALUES (%s, %s, %s, %s)
@@ -127,6 +133,22 @@ def insert_data(connection, data):
         print(f"Failed to insert data: {err}")
     cursor.close()
 
-connection = connect_to_prodev()
-data = read_csv_file()
-insert_data(connection,data)
+if __name__ == "__main__":
+    get_data_from_url()
+    connection = connect_db()
+    if connection:
+        create_database(connection)
+        connection.close()
+        print("Database connection successful")
+        connection = connect_to_prodev()
+        if connection:
+            create_table(connection)
+            insert_data(connection, filename)
+            connection.close()
+        else:
+            print("Failed to connect to ALX_prodev database.")
+    else:
+        print("Failed to connect to MySQL server.")
+else:
+    print("This script is intended to be run as a standalone program.")
+    print("Please run it directly.")    
