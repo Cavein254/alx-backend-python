@@ -37,10 +37,24 @@ def create_database(connection):
     cursor = connection.cursor()
     try:
         cursor.execute("CREATE DATABASE IF NOT EXISTS ALX_prodev")
-        print("database existance successful")
     except mysql.connector.Error as err:
         print(f"Failed to create database: {err}")
 
 
-conn = connect_db()
-create_database(conn)
+def connect_to_prodev():
+    """
+    connects to ALX_prodev database
+    """
+    try:
+        connection = mysql.connector.connect(
+        host = os.getenv("HOST"),
+        user = os.getenv("MYSQL_USER"),
+        password = os.getenv("MYSQL_PASSWORD"),
+        database = os.getenv("DATABASE")
+        )
+        return connection
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+connect_to_prodev()
