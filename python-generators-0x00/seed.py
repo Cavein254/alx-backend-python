@@ -14,7 +14,7 @@ def connect_db():
     connects to a MySQL database
     """
     try:
-        conn = mysql.connector.connect(
+        connection = mysql.connector.connect(
         host = os.getenv("HOST"),
         user = os.getenv("MYSQL_USER"),
         password = os.getenv("MYSQL_PASSWORD")
@@ -23,10 +23,24 @@ def connect_db():
             f"Database connection successful",
             f"Host:{os.getenv('HOST')}"
         )
-        return conn
+        return connection
     except mysql.connector.Error as err:
         print(f"Error {err}")
         return None
 
 
-connect_db()
+def create_database(connection):
+    """
+    creates database `ALX_prodev database
+    if it does not exist
+    """
+    cursor = connection.cursor()
+    try:
+        cursor.execute("CREATE DATABASE IF NOT EXISTS ALX_prodev")
+        print("database existance successful")
+    except mysql.connector.Error as err:
+        print(f"Failed to create database: {err}")
+
+
+conn = connect_db()
+create_database(conn)
