@@ -18,7 +18,6 @@ def fetch_all_users(query):
     cursor.execute(query)
     results = cursor.fetchall()
     conn.close()
-    print(results)
     return results
 
 #### fetch users while logging the query
