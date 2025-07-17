@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = User
-        fields = ['user_id', 'username', 'email', 'first_name', 'last_name', 'phone_number']
+        fields = ['user_id', 'username', 'email', 'first_name', 'last_name', 'phone_number', 'password']
         read_only_fields = ['user_id']
         extra_kwargs = {
             'password': {'write_only': True}
@@ -43,7 +43,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['message_id', 'conversation', 'sender', 'message_body', 'sent_at', 'created_at']
+        fields = ['message_id', 'conversation', 'sender', 'sender_username', 'message_body', 'sent_at', 'created_at']
         read_only_fields = ['message_id', 'sent_at', 'created_at']
     
     def create(self, validated_data):
