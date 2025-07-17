@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
@@ -12,6 +12,16 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(participants=self.request.user)
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        conversation = serializer.save()
+        conversation.participants.add(request.user)
+        return Response(
+            self.get_serializer(conversation).data,
+            status=status.HTTP_201_CREATED
+        )
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
