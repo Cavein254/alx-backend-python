@@ -1,6 +1,8 @@
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import NotFound
+
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOfConversation
@@ -37,11 +39,17 @@ class MessageViewSet(viewsets.ModelViewSet):
         return Message.objects.filter(conversation__participants=self.request.user)
 
     def perform_create(self, serializer):
-        conversation = serializer.validated_data.get("conversation")
+        # Extract conversation and verify participation
+        conversation_id = self.kwargs.get('conversation_id') or serializer.validated_data.get('conversation').id
+        try:
+            conversation = Conversation.objects.get(pk=conversation_id)
+        except Conversation.DoesNotExist:
+            raise NotFound(detail="Conversation not found")
+
         if self.request.user not in conversation.participants.all():
-            # ✅ Return 403 Forbidden if user is not a participant
             return Response(
                 {"detail": "You are not a participant in this conversation."},
                 status=status.HTTP_403_FORBIDDEN
             )
-        serializer.save(sender=self.request.user)
+        # Save message with sender and conversation
+        serializer.save(sender=self.request.user, conversation=conversation)
