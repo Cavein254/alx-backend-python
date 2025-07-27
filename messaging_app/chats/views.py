@@ -34,8 +34,14 @@ class MessageViewSet(viewsets.ModelViewSet):
     ordering_fields = ['timestamp']  # allow ?ordering=-timestamp
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        conversation_id = self.request.query_params.get('conversation')
-        if conversation_id:
-            queryset = queryset.filter(conversation_id=conversation_id)
-        return queryset
+        return Message.objects.filter(conversation__participants=self.request.user)
+
+    def perform_create(self, serializer):
+        conversation = serializer.validated_data.get("conversation")
+        if self.request.user not in conversation.participants.all():
+            # ✅ Return 403 Forbidden if user is not a participant
+            return Response(
+                {"detail": "You are not a participant in this conversation."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer.save(sender=self.request.user)
