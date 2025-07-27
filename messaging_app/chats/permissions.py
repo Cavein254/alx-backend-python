@@ -24,4 +24,7 @@ class IsParticipantOfConversation(permissions.BasePermission):
         if hasattr(obj, 'participants'):
             return request.user in obj.participants.all()
         
+        if request.method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
+            return request.user in obj.conversation.participants.all()
+        
         return False
