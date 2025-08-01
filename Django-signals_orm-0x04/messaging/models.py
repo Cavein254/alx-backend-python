@@ -6,7 +6,7 @@ class Message(models.Model):
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_messages_messaging', on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    dited = models.BooleanField(default=False)
+    edited = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Message from {self.sender.username} to {self.receiver.username} at {self.timestamp}'
