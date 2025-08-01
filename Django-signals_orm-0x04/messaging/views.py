@@ -61,3 +61,10 @@ class DeleteUserView(APIView):
         user.delete()  # Triggers the post_delete signal
         return Response({"message": f"User {username} and related data deleted successfully"}, status=status.HTTP_200_OK)
 
+class UnreadMessagesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        unread_messages = Message.unread.for_user(request.user)
+        serializer = MessageReplySerializer(unread_messages, many=True)
+        return Response(serializer.data)

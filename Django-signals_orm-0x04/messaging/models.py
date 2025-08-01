@@ -1,6 +1,15 @@
 from django.conf import settings 
 from django.db import models
 
+
+class UnreadMessagesManager(models.Manager):
+    def for_user(self, user):
+        return (
+            self.get_queryset()
+            .filter(receiver=user, read=False)
+            .only('id', 'sender', 'content', 'timestamp')
+        )
+
 class Message(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_messages_messaging', on_delete=models.CASCADE)
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_messages_messaging', on_delete=models.CASCADE)
@@ -14,6 +23,9 @@ class Message(models.Model):
         related_name='replies',
         on_delete=models.CASCADE
     )
+    read = models.BooleanField(default=False)
+    objects = models.Manager()
+    unread = UnreadMessagesManager()
 
 
     def __str__(self):
