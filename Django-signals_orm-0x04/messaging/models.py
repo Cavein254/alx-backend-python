@@ -3,12 +3,12 @@ from django.db import models
 
 class Message(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_messages_messaging', on_delete=models.CASCADE)
-    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_messages_messaging', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_messages_messaging', on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Message from {self.sender.username} to {self.recipient.username} at {self.timestamp}'
+        return f'Message from {self.sender.username} to {self.receiver.username} at {self.timestamp}'
 
 class Notification(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='notifications', on_delete=models.CASCADE)

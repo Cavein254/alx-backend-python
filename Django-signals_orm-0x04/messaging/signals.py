@@ -6,6 +6,6 @@ def create_notification(sender, instance, created, **kwargs):
     print("📩 Signal fired for Message") 
     if created:
         Notification.objects.create(
-            user=getattr(instance, 'receiver', getattr(instance, 'recipient')),
+            user = instance.receiver,  # Assuming 'receiver' is the field for the recipient
             message=instance
         )

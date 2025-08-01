@@ -9,8 +9,8 @@ class MessageSignalTest(TestCase):
         self.sender = User.objects.create_user(
             username='sender', email='sender@example.com', password='password123'
         )
-        self.recipient = User.objects.create_user(
-            username='recipient', email='recipient@example.com', password='password123'
+        self.receiver = User.objects.create_user(
+            username='receiver', email='receiver@example.com', password='password123'
         )
 
     def test_notification_created_on_message(self):
@@ -18,13 +18,13 @@ class MessageSignalTest(TestCase):
 
         message = Message.objects.create(
             sender=self.sender,
-            recipient=self.recipient,  
-            content="Hello recipient!"
+            receiver=self.receiver,  
+            content="Hello receiver!"
         )
 
         self.assertEqual(Notification.objects.count(), 1)
         notification = Notification.objects.first()
-        self.assertEqual(notification.user, self.recipient)
+        self.assertEqual(notification.user, self.receiver)
         self.assertEqual(notification.message, message)
         self.assertFalse(notification.is_read)
 
@@ -32,10 +32,10 @@ class MessageSignalTest(TestCase):
         for i in range(3):
             Message.objects.create(
                 sender=self.sender,
-                recipient=self.recipient,  
+                receiver=self.receiver,  
                 content=f"Message {i}"
             )
 
         self.assertEqual(Notification.objects.count(), 3)
         for notif in Notification.objects.all():
-            self.assertEqual(notif.user, self.recipient)
+            self.assertEqual(notif.user, self.receiver)
