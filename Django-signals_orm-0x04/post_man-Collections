@@ -1,0 +1,16 @@
+{
+  "username": "cavein",
+  "password": "cave"
+}
+
+{
+  "title": "Test Conversation",
+  "participants": [2, 3]  // other user IDs
+}
+
+
+{
+  "conversation": 1,  // conversation ID
+  "text": "Hello, this is a message"
+}
+l
