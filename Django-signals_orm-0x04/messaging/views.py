@@ -3,6 +3,9 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.db.models import Q
 
 from .models import Message
 from .serializers import MessageSerializer, MessageReplySerializer
@@ -23,14 +26,14 @@ class ConversationView(generics.ListAPIView):
             )
             .order_by('-timestamp')
         )
-
+@method_decorator(cache_page(60), name='get')
 class MessageListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         # Fetch all top-level messages (no parent) for the logged-in user
         messages = (
-            Message.objects.filter(sender=request.user)  
+            Message.objects.filter(Q(sender=request.user) | Q(receiver=request.user))  
             .select_related('sender', 'receiver')         
             .prefetch_related('replies')                  
         )
