@@ -30,7 +30,7 @@ class MessageListView(APIView):
     def get(self, request):
         # Fetch all top-level messages (no parent) for the logged-in user
         messages = (
-            Message.objects.filter(receiver=request.user)  
+            Message.objects.filter(sender=request.user)  
             .select_related('sender', 'receiver')         
             .prefetch_related('replies')                  
         )
