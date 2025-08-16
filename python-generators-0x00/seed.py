@@ -111,7 +111,7 @@ def insert_data(connection, filename):
     """
       inserts data in the database if it does not exist
     """
-    data = read_csv_file(filename)
+    data = rearid_csv_file(filename)
     if not data:
         print("No data to insert.")
         return
