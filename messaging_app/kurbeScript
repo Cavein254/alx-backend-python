@@ -18,10 +18,10 @@ minikube start
 
 # Step 3: Verify cluster is running
 echo "🔍 Verifying Kubernetes cluster status..."
-kubectl cluster-info
+minikube kubectl -- cluster-info
 
 # Step 4: Retrieve available pods (in all namespaces)
 echo "📋 Retrieving pods..."
-kubectl get pods --all-namespaces
+minikube kubectl -- get pods -A
 
 echo "✅ Kubernetes local cluster is set up and running!"
