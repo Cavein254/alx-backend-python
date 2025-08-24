@@ -9,7 +9,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'git@github.com:Cavein254/alx-backend-python.git'
+                git branch: 'main',
+                    url: 'git@github.com:Cavein254/alx-backend-python.git',
+                    credentialsId: 'github-credentials'
             }
         }
 
@@ -23,13 +25,13 @@ pipeline {
                   . ${VENV_DIR}/bin/activate
 
                   # Upgrade pip
-                  pip install --upgrade pip
+                  pip3 install --upgrade pip
 
                   # Install project dependencies
-                  pip install -r requirements.txt
+                  pip3 install -r messaging_app/requirements.txt
 
                   # Install pytest and junitxml plugin for reporting
-                  pip install pytest pytest-django pytest-cov pytest-html
+                  pip3 install pytest pytest-django pytest-cov pytest-html
                 '''
             }
         }
@@ -38,25 +40,17 @@ pipeline {
             steps {
                 sh '''
                   . ${VENV_DIR}/bin/activate
-                  
-                  # Run pytest with JUnit XML + HTML report
-                  pytest --ds=messaging_app.settings \
-                         --junitxml=test-results/results.xml \
-                         --html=test-results/report.html --self-contained-html
+                  cd ${WORKSPACE}/alx-backend-python/messaging_app
+                  pytest --maxfail=1 --disable-warnings -q                          --junitxml=report.xml                          --html=report.html --self-contained-html
                 '''
             }
-            post {
-                always {
-                    junit 'test-results/results.xml'
-                    archiveArtifacts artifacts: 'test-results/report.html', allowEmptyArchive: true
-                }
-            }
         }
-    }
 
-    post {
-        always {
-            cleanWs()
+        stage('Archive Reports') {
+            steps {
+                junit 'report.xml'
+                archiveArtifacts artifacts: 'report.html', fingerprint: true
+            }
         }
     }
 }
