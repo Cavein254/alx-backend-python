@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+
+    environment {
+        VENV_DIR = "${WORKSPACE}/venv"
+        PYTHON = "python3"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'git@github.com:Cavein254/alx-backend-python.git'
+            }
+        }
+
+        stage('Setup Environment') {
+            steps {
+                sh '''
+                  # Change to project directory
+                  cd ${WORKSPACE}/alx-backend-python/messaging_app
+                  # Create virtual environment
+                  ${PYTHON} -m venv ${VENV_DIR}
+                  . ${VENV_DIR}/bin/activate
+
+                  # Upgrade pip
+                  pip install --upgrade pip
+
+                  # Install project dependencies
+                  pip install -r requirements.txt
+
+                  # Install pytest and junitxml plugin for reporting
+                  pip install pytest pytest-django pytest-cov pytest-html
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                  . ${VENV_DIR}/bin/activate
+                  
+                  # Run pytest with JUnit XML + HTML report
+                  pytest --ds=messaging_app.settings \
+                         --junitxml=test-results/results.xml \
+                         --html=test-results/report.html --self-contained-html
+                '''
+            }
+            post {
+                always {
+                    junit 'test-results/results.xml'
+                    archiveArtifacts artifacts: 'test-results/report.html', allowEmptyArchive: true
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
